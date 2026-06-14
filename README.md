@@ -46,3 +46,20 @@ Usuarios que necesitan guía por voz, alertas auditivas y orientación clara par
 - CSS3
 - JavaScript
 
+
+
+## Estructura del proyecto
+
+```txt
+public/
+├── index.html
+├── help.html
+├── favicon.ico
+└── assets/
+    ├── images/
+    │   ├── logo-accesiruta.png
+    │   └── mapa-ruta.png
+    ├── styles/
+    │   └── styles.css
+    └── scripts/
+        └── main.js
