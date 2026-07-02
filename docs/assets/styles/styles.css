@@ -72,6 +72,43 @@ body.high-contrast .site-header {
     border-bottom: 3px solid #ffcc00;
 }
 
+/* Fix: .brand, .nav-menu a, .contrast-toggle and .site-footer text used
+   var(--white), which becomes black in high-contrast mode, making them
+   invisible against the black header/footer background. Force them to a
+   bright color explicitly so they stay readable. */
+body.high-contrast .brand,
+body.high-contrast .nav-menu a,
+body.high-contrast .contrast-toggle,
+body.high-contrast .site-footer,
+body.high-contrast .site-footer h3,
+body.high-contrast .site-footer p {
+    color: #ffffff;
+}
+
+body.high-contrast .contrast-toggle {
+    border-color: #ffcc00;
+}
+
+body.high-contrast .contrast-toggle.active {
+    color: #000000;
+}
+
+body.high-contrast .admin-nav-link {
+    background: rgba(255, 204, 0, 0.16);
+    border: 1px solid #ffcc00;
+}
+
+body.high-contrast .menu-button {
+    background: #000000;
+    color: #ffcc00;
+    border-color: #ffcc00;
+}
+
+body.high-contrast .nav-menu.active {
+    background: #000000;
+    border-top: 1px solid #ffcc00;
+}
+
 body.high-contrast .info-card,
 body.high-contrast .feature-card,
 body.high-contrast .step-card,
@@ -145,6 +182,23 @@ body.high-contrast .other-obstacle-wrap label {
     color: #f2f2f2;
 }
 
+/* Fix: .register-terms-container/.register-terms-label kept their fixed
+   light background and dark text in every mode, but the more specific
+   ".demo-form label" rule overrode the text to var(--text-dark) (white in
+   high-contrast), leaving white text on a near-white box. */
+body.high-contrast .register-terms-container {
+    background: #000000;
+    border-color: #ffcc00;
+}
+
+body.high-contrast .register-terms-label {
+    color: #ffffff;
+}
+
+body.high-contrast .terms-open-button {
+    color: #ffcc00;
+}
+
 body.high-contrast .form-message-success {
     color: #ffcc00;
 }
@@ -165,6 +219,20 @@ body.high-contrast .admin-table td {
 body.high-contrast .status-select {
     background: #000000;
     color: #ffffff;
+}
+
+/* Fix: .toast background used var(--text-dark), which becomes white in
+   high-contrast mode, while its text color was a fixed white — making
+   every toast (including "Modo alto contraste activado") invisible. */
+body.high-contrast .toast {
+    background: #000000;
+    color: #ffffff;
+    border: 1px solid #ffcc00;
+    border-left: 5px solid #ffcc00;
+}
+
+body.high-contrast .toast.toast-error {
+    border-left-color: #ff6b6b;
 }
 
 /* ============ HEADER ============ */
