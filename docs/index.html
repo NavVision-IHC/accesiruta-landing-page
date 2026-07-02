@@ -11,6 +11,8 @@
 
 <body>
 
+<div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
 <header class="site-header">
     <nav class="navbar">
         <a href="#inicio" class="brand">
@@ -18,15 +20,22 @@
             <span>AccesiRuta</span>
         </a>
 
-        <button id="menuButton" class="menu-button" type="button">Menú</button>
+        <div class="navbar-right">
+            <button id="contrastToggle" class="contrast-toggle" type="button" title="Activar alto contraste">
+                <span class="contrast-icon">◐</span>
+                <span class="contrast-label">Alto contraste</span>
+            </button>
 
-        <ul id="menu" class="nav-menu">
-            <li><a href="#inicio">Inicio</a></li>
-            <li><a href="#demo">Mi ruta</a></li>
-            <li><a href="#funciones">Reportes</a></li>
-            <li><a href="#usuarios">Preferencias</a></li>
-            <li><a href="help.html">Ayuda</a></li>
-        </ul>
+            <button id="menuButton" class="menu-button" type="button">Menú</button>
+
+            <ul id="menu" class="nav-menu">
+                <li><a href="#inicio">Inicio</a></li>
+                <li><a href="#demo">Mi ruta</a></li>
+                <li><a href="#funciones">Reportes</a></li>
+                <li><a href="#usuarios">Preferencias</a></li>
+                <li><a href="#demo" id="adminNavLink" class="admin-nav-link" data-screen="adminScreen">Panel admin</a></li>
+            </ul>
+        </div>
     </nav>
 </header>
 
@@ -43,19 +52,66 @@
                 </p>
 
                 <div class="hero-actions">
-                    <a href="#demo" class="primary-button">Ver avance de la app</a>
+                    <a href="#demo" class="primary-button">Probar la app</a>
                     <a href="#funciones" class="secondary-button">Conocer funciones</a>
                 </div>
             </div>
 
             <div class="hero-image">
-                <img src="assets/images/mapa-ruta.png" alt="Mapa ilustrativo de una ruta accesible">
+                <svg class="path-illustration" viewBox="0 0 420 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ilustracion de una ruta accesible dibujandose">
+                    <path id="heroPath" d="M40,360 C90,280 60,220 120,190 C180,160 150,110 220,90 C280,72 300,40 380,30"
+                          fill="none" stroke="#0f7f73" stroke-width="6" stroke-linecap="round" stroke-dasharray="900" stroke-dashoffset="900"/>
+                    <circle class="path-node" cx="40" cy="360" r="9"/>
+                    <circle class="path-node delay-1" cx="120" cy="190" r="9"/>
+                    <circle class="path-node delay-2" cx="220" cy="90" r="9"/>
+                    <circle class="path-node delay-3" cx="380" cy="30" r="11"/>
+                    <text x="18" y="386" class="path-label">Origen</text>
+                    <text x="330" y="20" class="path-label">Destino</text>
+                    <g class="floating-badge badge-ramp" transform="translate(95,230)">
+                        <circle r="16" />
+                        <text y="5">♿</text>
+                    </g>
+                    <g class="floating-badge badge-cross" transform="translate(195,140)">
+                        <circle r="16" />
+                        <text y="5">⚠</text>
+                    </g>
+                    <g class="floating-badge badge-voice" transform="translate(300,55)">
+                        <circle r="16" />
+                        <text y="5">🔊</text>
+                    </g>
+                </svg>
             </div>
         </div>
     </section>
 
+    <section id="impacto" class="section stats-section">
+        <div class="stats-grid">
+            <article class="stat-card reveal">
+                <span class="stat-number" data-target="1240">0</span>
+                <span class="stat-suffix">+</span>
+                <p>rutas accesibles calculadas</p>
+            </article>
+
+            <article class="stat-card reveal">
+                <span class="stat-number" data-target="386">0</span>
+                <p>barreras reportadas por la comunidad</p>
+            </article>
+
+            <article class="stat-card reveal">
+                <span class="stat-number" data-target="27">0</span>
+                <p>distritos de Lima cubiertos</p>
+            </article>
+
+            <article class="stat-card reveal">
+                <span class="stat-number" data-target="94">0</span>
+                <span class="stat-suffix">%</span>
+                <p>de usuarios reporta mayor autonomía</p>
+            </article>
+        </div>
+    </section>
+
     <section id="problema" class="section problem-section">
-        <div class="section-header">
+        <div class="section-header reveal">
             <span class="section-label">Problema</span>
             <h2>La movilidad urbana no siempre es accesible</h2>
             <p>
@@ -66,19 +122,19 @@
         </div>
 
         <div class="cards-grid three-columns">
-            <article class="info-card">
+            <article class="info-card reveal">
                 <span class="card-icon danger">!</span>
                 <h3>Barreras urbanas</h3>
                 <p>Rampas bloqueadas, veredas dañadas, huecos y obras sin señalización.</p>
             </article>
 
-            <article class="info-card">
+            <article class="info-card reveal">
                 <span class="card-icon warning">?</span>
                 <h3>Falta de información</h3>
                 <p>El usuario no sabe si una ruta será realmente segura o accesible.</p>
             </article>
 
-            <article class="info-card">
+            <article class="info-card reveal">
                 <span class="card-icon blue">↗</span>
                 <h3>Dependencia de terceros</h3>
                 <p>La incertidumbre obliga a pedir ayuda o cambiar el trayecto.</p>
@@ -87,7 +143,7 @@
     </section>
 
     <section id="solucion" class="section solution-section">
-        <div class="section-header">
+        <div class="section-header reveal">
             <span class="section-label">Solución</span>
             <h2>AccesiRuta convierte la movilidad en una experiencia más segura</h2>
             <p>
@@ -96,18 +152,21 @@
             </p>
         </div>
 
-        <div class="cards-grid three-columns">
-            <article class="info-card">
+        <div class="cards-grid three-columns timeline-grid">
+            <article class="info-card reveal">
+                <span class="timeline-dot"></span>
                 <h3>Antes del recorrido</h3>
                 <p>El usuario configura sus necesidades y busca rutas accesibles antes de salir.</p>
             </article>
 
-            <article class="info-card">
+            <article class="info-card reveal">
+                <span class="timeline-dot"></span>
                 <h3>Durante el recorrido</h3>
                 <p>La app informa obstáculos, cambios de ruta, cruces seguros y puntos importantes.</p>
             </article>
 
-            <article class="info-card">
+            <article class="info-card reveal">
+                <span class="timeline-dot"></span>
                 <h3>Después del recorrido</h3>
                 <p>El usuario puede evaluar la ruta y reportar información útil para la comunidad.</p>
             </article>
@@ -115,43 +174,43 @@
     </section>
 
     <section id="funciones" class="section features-section">
-        <div class="section-header">
+        <div class="section-header reveal">
             <span class="section-label">Funciones principales</span>
             <h2>Herramientas diseñadas para una navegación inclusiva</h2>
         </div>
 
         <div class="features-grid">
-            <article class="feature-card">
+            <article class="feature-card reveal">
                 <span class="feature-icon green">✓</span>
                 <h3>Rutas accesibles</h3>
                 <p>Rutas que priorizan rampas, veredas amplias, cruces seguros y menor cantidad de obstáculos.</p>
             </article>
 
-            <article class="feature-card">
+            <article class="feature-card reveal">
                 <span class="feature-icon orange">!</span>
                 <h3>Alertas</h3>
                 <p>Alertas sobre obstáculos, zonas de riesgo o avisos durante el trayecto.</p>
             </article>
 
-            <article class="feature-card">
+            <article class="feature-card reveal">
                 <span class="feature-icon blue">🔊</span>
                 <h3>Guía por voz</h3>
                 <p>Indicaciones auditivas para usuarios con discapacidad visual.</p>
             </article>
 
-            <article class="feature-card">
+            <article class="feature-card reveal">
                 <span class="feature-icon teal">+</span>
                 <h3>Reportes colaborativos</h3>
                 <p>La comunidad informa barreras urbanas y ayuda a mantener rutas actualizadas.</p>
             </article>
 
-            <article class="feature-card">
+            <article class="feature-card reveal">
                 <span class="feature-icon purple">Aa</span>
                 <h3>Diseño accesible</h3>
-                <p>Alto contraste, botones visibles, textos claros y navegación sencilla.</p>
+                <p>Alto contraste, botones visibles, textos claros y navegación sencilla. Pruébalo arriba, en el botón "Alto contraste".</p>
             </article>
 
-            <article class="feature-card">
+            <article class="feature-card reveal">
                 <span class="feature-icon red">SOS</span>
                 <h3>Apoyo en emergencias</h3>
                 <p>Acceso a contactos o acciones rápidas para situaciones de riesgo.</p>
@@ -160,11 +219,12 @@
     </section>
 
     <section id="demo" class="section demo-section">
-        <div class="section-header">
+        <div class="section-header reveal">
             <span class="section-label">Vista previa de la aplicación</span>
             <h2>Explora algunas pantallas principales de AccesiRuta</h2>
             <p>
-                Esta sección muestra un avance interactivo de algunas funciones importantes del producto.
+                Este avance es completamente funcional: crea una cuenta, reporta un obstáculo real
+                y consúltalo luego desde el panel de administrador.
             </p>
         </div>
 
@@ -175,6 +235,7 @@
             <button type="button" class="demo-btn" data-screen="searchScreen">Buscar ruta</button>
             <button type="button" class="demo-btn" data-screen="reportScreen">Reportar</button>
             <button type="button" class="demo-btn" data-screen="voiceScreen">Guía por voz</button>
+            <button type="button" class="demo-btn admin-btn" data-screen="adminScreen">Panel admin</button>
         </div>
 
         <div class="app-preview-container">
@@ -199,6 +260,8 @@
 
                         <button type="submit" class="primary-button full-button">Iniciar sesión</button>
                     </form>
+
+                    <p class="hint-text">Prueba el panel admin con <strong>admin@accesiruta.pe</strong> / <strong>admin123</strong></p>
 
                     <p id="loginMessage" class="form-message"></p>
                 </div>
@@ -342,8 +405,13 @@
                         </div>
 
                         <div class="search-route-map">
-                            <img src="assets/images/mapa-ruta.png" alt="Mapa ilustrativo de ruta accesible">
-                            <div class="map-caption">Vista referencial de ruta accesible</div>
+                            <div class="map-embed-wrap">
+                                <iframe id="destinationMapFrame" class="map-embed-frame"
+                                        src="https://www.google.com/maps?q=Lima%2C%20Peru&output=embed"
+                                        loading="lazy" title="Mapa real del destino"
+                                        referrerpolicy="no-referrer-when-downgrade"></iframe>
+                            </div>
+                            <div class="map-caption" id="mapCaptionText">Ingresa un destino y calcula la ruta para ver el mapa real del lugar</div>
                         </div>
                     </div>
                 </div>
@@ -354,31 +422,41 @@
 
                 <div class="phone-card wide-card">
                     <h4>Ayuda a otros usuarios</h4>
-                    <p>Reporta barreras urbanas para mantener rutas actualizadas.</p>
+                    <p>Reporta barreras urbanas para mantener rutas actualizadas. Tu reporte aparecerá en el panel admin.</p>
 
                     <form id="reportForm" class="demo-form">
                         <h5>Tipo de obstáculo</h5>
 
                         <div class="access-grid">
                             <label class="access-need">
-                                <input type="checkbox" name="obstacle" value="rampa">
+                                <input type="checkbox" name="obstacle" value="Rampa bloqueada">
                                 <span>Rampa bloqueada</span>
                             </label>
 
                             <label class="access-need">
-                                <input type="checkbox" name="obstacle" value="vereda">
+                                <input type="checkbox" name="obstacle" value="Vereda dañada">
                                 <span>Vereda dañada</span>
                             </label>
 
                             <label class="access-need">
-                                <input type="checkbox" name="obstacle" value="obra">
+                                <input type="checkbox" name="obstacle" value="Obra sin señalización">
                                 <span>Obra sin señalización</span>
                             </label>
 
                             <label class="access-need">
-                                <input type="checkbox" name="obstacle" value="cruce">
+                                <input type="checkbox" name="obstacle" value="Cruce inseguro">
                                 <span>Cruce inseguro</span>
                             </label>
+
+                            <label class="access-need obstacle-other-toggle" id="otherObstacleToggle">
+                                <input type="checkbox" name="obstacle" value="Otro" id="otherObstacleCheckbox">
+                                <span>+ Otro (especificar)</span>
+                            </label>
+                        </div>
+
+                        <div id="otherObstacleWrap" class="other-obstacle-wrap hidden">
+                            <label for="otherObstacleInput">Describe el obstáculo</label>
+                            <input type="text" id="otherObstacleInput" placeholder="Ej. Poste caído sobre la vereda">
                         </div>
 
                         <label for="location">Ubicación del obstáculo</label>
@@ -421,17 +499,81 @@
                 </div>
             </div>
 
+            <div id="adminScreen" class="app-screen">
+                <h3>Panel de administrador</h3>
+
+                <div class="phone-card wide-card admin-card">
+
+                    <div id="adminLocked" class="admin-locked">
+                        <span class="lock-icon">🔒</span>
+                        <h4>Acceso restringido</h4>
+                        <p>Inicia sesión con una cuenta de administrador para ver los reportes de la comunidad.</p>
+                        <p class="hint-text">admin@accesiruta.pe / admin123</p>
+                    </div>
+
+                    <div id="adminContent" class="admin-content">
+                        <div class="admin-header-row">
+                            <div>
+                                <h4>Reportes de la comunidad</h4>
+                                <p id="adminSummary" class="admin-summary"></p>
+                            </div>
+                            <button type="button" id="logoutButton" class="secondary-action-button">Cerrar sesión</button>
+                        </div>
+
+                        <div class="admin-table-wrap">
+                            <table class="admin-table">
+                                <thead>
+                                <tr>
+                                    <th>Tipo</th>
+                                    <th>Ubicación</th>
+                                    <th>Reportado por</th>
+                                    <th>Fecha</th>
+                                    <th>Estado</th>
+                                    <th></th>
+                                </tr>
+                                </thead>
+                                <tbody id="adminTableBody"></tbody>
+                            </table>
+                        </div>
+
+                        <div class="admin-header-row admin-second-header">
+                            <div>
+                                <h4>Usuarios registrados en Contacto</h4>
+                                <p id="adminContactsSummary" class="admin-summary"></p>
+                            </div>
+                        </div>
+
+                        <div class="admin-table-wrap">
+                            <table class="admin-table">
+                                <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Correo</th>
+                                    <th>Teléfono</th>
+                                    <th>Perfil</th>
+                                    <th>Fecha</th>
+                                    <th>Estado</th>
+                                    <th></th>
+                                </tr>
+                                </thead>
+                                <tbody id="adminContactsBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </section>
 
     <section id="usuarios" class="section users-section">
-        <div class="section-header">
+        <div class="section-header reveal">
             <span class="section-label">Usuarios objetivo</span>
             <h2>Diseñado para diferentes necesidades de movilidad</h2>
         </div>
 
         <div class="cards-grid two-columns">
-            <article class="info-card">
+            <article class="info-card reveal">
                 <h3>Personas con discapacidad motriz</h3>
                 <p>
                     Necesitan rutas con rampas transitables, veredas amplias, cruces seguros
@@ -439,7 +581,7 @@
                 </p>
             </article>
 
-            <article class="info-card">
+            <article class="info-card reveal">
                 <h3>Personas con discapacidad visual</h3>
                 <p>
                     Requieren guía por voz, alertas auditivas, indicaciones descriptivas
@@ -449,26 +591,48 @@
         </div>
     </section>
 
+    <section id="testimonios" class="section testimonials-section">
+        <div class="section-header reveal">
+            <span class="section-label">Voces de la comunidad</span>
+            <h2>Lo que dicen quienes ya usan AccesiRuta</h2>
+        </div>
+
+        <div class="testimonial-carousel reveal">
+            <button type="button" id="testimonialPrev" class="testimonial-arrow" aria-label="Testimonio anterior">‹</button>
+
+            <div class="testimonial-track">
+                <blockquote id="testimonialText" class="testimonial-text">
+                    "Antes evitaba salir sola por miedo a encontrar una vereda rota. Ahora reviso la ruta antes de salir y llego con mucha más tranquilidad."
+                </blockquote>
+                <p id="testimonialAuthor" class="testimonial-author">— Rosa M., usuaria con discapacidad motriz</p>
+            </div>
+
+            <button type="button" id="testimonialNext" class="testimonial-arrow" aria-label="Siguiente testimonio">›</button>
+        </div>
+
+        <div id="testimonialDots" class="testimonial-dots"></div>
+    </section>
+
     <section id="proceso" class="section process-section">
-        <div class="section-header">
+        <div class="section-header reveal">
             <span class="section-label">Proceso de uso</span>
             <h2>¿Cómo funciona AccesiRuta?</h2>
         </div>
 
         <div class="cards-grid three-columns">
-            <article class="step-card">
+            <article class="step-card reveal">
                 <span class="step-number">1</span>
                 <h3>Configura tu perfil</h3>
                 <p>Selecciona tus necesidades de accesibilidad antes de buscar una ruta.</p>
             </article>
 
-            <article class="step-card">
+            <article class="step-card reveal">
                 <span class="step-number">2</span>
                 <h3>Busca una ruta</h3>
                 <p>Ingresa tu destino y compara alternativas según accesibilidad y seguridad.</p>
             </article>
 
-            <article class="step-card">
+            <article class="step-card reveal">
                 <span class="step-number">3</span>
                 <h3>Navega con apoyo</h3>
                 <p>Recibe alertas, guía por voz y reporta obstáculos durante el trayecto.</p>
@@ -477,7 +641,7 @@
     </section>
 
     <section id="contacto" class="section contact-section">
-        <div class="section-header">
+        <div class="section-header reveal">
             <span class="section-label">Contacto</span>
             <h2>Forma parte de una movilidad más accesible</h2>
             <p>
@@ -486,12 +650,17 @@
             </p>
         </div>
 
-        <form id="contactForm" class="contact-form">
+        <form id="contactForm" class="contact-form reveal">
             <label for="name">Nombre completo</label>
             <input type="text" id="name" placeholder="Ej. Luis Fernández">
 
             <label for="email">Correo electrónico</label>
             <input type="email" id="email" placeholder="correo@ejemplo.com">
+
+            <label for="contactPhone">Número de teléfono</label>
+            <input type="tel" id="contactPhone" inputmode="numeric" maxlength="9"
+                   placeholder="9XXXXXXXX" autocomplete="off">
+            <p class="field-hint">Debe empezar en 9 y tener 9 dígitos.</p>
 
             <label for="profile">Tipo de usuario</label>
             <select id="profile">
@@ -571,12 +740,19 @@
             </p>
 
             <div class="map-modal-preview">
-                <img src="assets/images/mapa-ruta.png" alt="Vista de mapa accesible">
-                <p>AccesiRuta prioriza recorridos con rampas, cruces seguros y menos obstáculos.</p>
+                <div class="map-embed-wrap modal-map-embed">
+                    <iframe id="modalMapFrame" class="map-embed-frame"
+                            src="https://www.google.com/maps?q=Lima%2C%20Peru&output=embed"
+                            loading="lazy" title="Vista previa del mapa" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                </div>
+                <p>Escribe el destino para ver el mapa real. Si también ingresas tu origen, verás la ruta completa.</p>
             </div>
         </div>
 
         <div class="map-modal-footer">
+            <button type="button" id="useAsDestinationButton" class="secondary-action-button full-button">
+                Usar esta dirección como destino
+            </button>
             <button type="button" id="openGoogleMapsButton" class="terms-accept-button">
                 Abrir ruta en Google Maps
             </button>
