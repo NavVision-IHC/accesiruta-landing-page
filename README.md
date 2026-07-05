@@ -47,7 +47,6 @@ Usuarios que necesitan guía por voz, alertas auditivas y orientación clara par
 - JavaScript
 
 
-
 ## Estructura del proyecto
 
 ```txt
