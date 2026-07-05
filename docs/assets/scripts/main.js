@@ -5,6 +5,7 @@ var STORAGE_REPORTS = "accesiruta_reports";
 var STORAGE_SESSION = "accesiruta_session";
 var STORAGE_CONTRAST = "accesiruta_contrast";
 var STORAGE_CONTACTS = "accesiruta_contacts";
+var STORAGE_VOICE_MODE = "accesiruta_voice_mode";
 
 function getContacts() {
     var raw = localStorage.getItem(STORAGE_CONTACTS);
@@ -152,6 +153,81 @@ function showToast(text, type) {
     }, 3200);
 }
 
+
+/* ============ MAPA LEAFLET DE LA PORTADA ============ */
+/* Muestra el mapa real de OpenStreetMap, con dos marcadores y una ruta
+   accesible similar a la referencia original. Si Leaflet o Internet no
+   están disponibles, queda visible la imagen local de respaldo. */
+
+var heroMapElement = document.getElementById("heroMap");
+var heroMapShell = document.getElementById("heroMapShell");
+
+if (heroMapElement && window.L) {
+    var heroMap = L.map(heroMapElement, {
+        zoomControl: true,
+        attributionControl: true,
+        scrollWheelZoom: false,
+        keyboard: true
+    });
+
+    var heroTileLayer = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19,
+        attribution: "&copy; OpenStreetMap contributors"
+    });
+
+    heroTileLayer.addTo(heroMap);
+
+    var accessibleRoute = [
+        [-12.04988, -77.04182],
+        [-12.05055, -77.04087],
+        [-12.05142, -77.03968],
+        [-12.05238, -77.03843],
+        [-12.05338, -77.03712],
+        [-12.05442, -77.03582],
+        [-12.05548, -77.03448]
+    ];
+
+    var routeLine = L.polyline(accessibleRoute, {
+        color: "#0f8b83",
+        weight: 5,
+        opacity: 0.96,
+        lineCap: "round",
+        lineJoin: "round"
+    }).addTo(heroMap);
+
+    var accessiblePin = L.divIcon({
+        className: "accesiruta-map-pin",
+        html: '<span class="map-pin-shape"><span class="map-pin-center"></span></span>',
+        iconSize: [28, 38],
+        iconAnchor: [14, 34],
+        popupAnchor: [0, -32]
+    });
+
+    L.marker(accessibleRoute[0], { icon: accessiblePin })
+        .addTo(heroMap)
+        .bindTooltip("Punto de origen", { direction: "top", offset: [0, -28] });
+
+    L.marker(accessibleRoute[accessibleRoute.length - 1], { icon: accessiblePin })
+        .addTo(heroMap)
+        .bindTooltip("Punto de destino", { direction: "top", offset: [0, -28] });
+
+    heroMap.fitBounds(routeLine.getBounds(), {
+        padding: [42, 42],
+        maxZoom: 16
+    });
+
+    heroTileLayer.on("load", function () {
+        if (heroMapShell) {
+            heroMapShell.classList.add("map-ready");
+        }
+        heroMap.invalidateSize();
+    });
+
+    setTimeout(function () {
+        heroMap.invalidateSize();
+    }, 250);
+}
+
 /* ============ MOBILE MENU ============ */
 
 var menuButton = document.getElementById("menuButton");
@@ -161,6 +237,252 @@ if (menuButton && menu) {
     menuButton.onclick = function () {
         menu.classList.toggle("active");
     };
+}
+
+/* ============================================================
+   GUÍA POR VOZ (Web Speech API)
+   Pensada para personas con discapacidad visual: permite escuchar
+   el contenido de cada sección y anuncia en voz alta los resultados
+   de cada acción (login, búsqueda, reportes, etc.). No requiere
+   claves ni servicios externos: usa la síntesis de voz incluida en
+   el propio navegador.
+   ============================================================ */
+
+var SPEAK_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 6a9 9 0 0 1 0 12"/></svg>';
+var MUTE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H3v6h3l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>';
+
+var voiceSupported = "speechSynthesis" in window;
+var voiceModeToggle = document.getElementById("voiceModeToggle");
+var voiceLiveRegion = document.getElementById("voiceLiveRegion");
+var voiceEnabled = localStorage.getItem(STORAGE_VOICE_MODE) !== "off";
+var VOICE_RATE = 1.15;
+
+function updateVoiceLiveRegion(text) {
+    if (!voiceLiveRegion || !text) {
+        return;
+    }
+
+    voiceLiveRegion.textContent = "";
+    setTimeout(function () {
+        voiceLiveRegion.textContent = text;
+    }, 40);
+}
+
+function updateVoiceToggleUI() {
+    if (!voiceModeToggle) {
+        return;
+    }
+
+    if (!voiceSupported) {
+        voiceModeToggle.innerHTML = MUTE_ICON;
+        voiceModeToggle.classList.add("voice-off");
+        voiceModeToggle.title = "La guía por voz no está disponible en este navegador";
+        voiceModeToggle.disabled = true;
+        return;
+    }
+
+    voiceModeToggle.innerHTML = voiceEnabled ? SPEAK_ICON : MUTE_ICON;
+    voiceModeToggle.classList.toggle("voice-off", !voiceEnabled);
+    voiceModeToggle.title = voiceEnabled
+        ? "Guía por voz activada (clic para desactivar)"
+        : "Guía por voz desactivada (clic para activar)";
+}
+
+/* speak(): respeta la preferencia del usuario (se detiene si desactivó la guía por voz) */
+function speak(text) {
+    if (!voiceSupported || !voiceEnabled || !text) {
+        return;
+    }
+
+    updateVoiceLiveRegion(text);
+    window.speechSynthesis.cancel();
+
+    var utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = "es-PE";
+    utterance.rate = VOICE_RATE;
+    window.speechSynthesis.speak(utterance);
+}
+
+/* speakForce(): siempre habla (usada cuando el usuario pide explícitamente "escuchar") */
+function speakForce(text) {
+    if (!voiceSupported || !text) {
+        return;
+    }
+
+    updateVoiceLiveRegion(text);
+    window.speechSynthesis.cancel();
+
+    var utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = "es-PE";
+    utterance.rate = VOICE_RATE;
+    window.speechSynthesis.speak(utterance);
+}
+
+if (voiceModeToggle) {
+    voiceModeToggle.onclick = function () {
+        voiceEnabled = !voiceEnabled;
+        localStorage.setItem(STORAGE_VOICE_MODE, voiceEnabled ? "on" : "off");
+        updateVoiceToggleUI();
+        showToast(voiceEnabled ? "Guía por voz activada." : "Guía por voz desactivada.");
+        speakForce(voiceEnabled ? "Guía por voz activada." : "Guía por voz desactivada.");
+    };
+}
+
+updateVoiceToggleUI();
+
+var testVoiceButton = document.getElementById("testVoiceButton");
+
+if (testVoiceButton) {
+    testVoiceButton.onclick = function () {
+        speakForce(
+            "En 200 metros, gire a la derecha. Cruce peatonal con semáforo sonoro detectado. " +
+            "Vereda amplia por los próximos 100 metros."
+        );
+    };
+}
+
+function cleanVoiceText(text) {
+    return (text || "").replace(/\s+/g, " ").trim();
+}
+
+function isVisibleForVoice(element) {
+    if (!element) {
+        return false;
+    }
+
+    var style = window.getComputedStyle(element);
+
+    if (style.display === "none" || style.visibility === "hidden" || element.getAttribute("aria-hidden") === "true") {
+        return false;
+    }
+
+    return element.getClientRects().length > 0;
+}
+
+function getReadableContent(target) {
+    if (!target) {
+        return "";
+    }
+
+    var parts = [];
+    var candidates = target.querySelectorAll(
+        "h1, h2, h3, h4, h5, h6, p, label, button, .section-label, .map-caption, th, td"
+    );
+
+    for (var i = 0; i < candidates.length; i++) {
+        var element = candidates[i];
+
+        if (!isVisibleForVoice(element) || element.classList.contains("speak-button") || element.closest(".speak-button")) {
+            continue;
+        }
+
+        var text = cleanVoiceText(element.textContent);
+
+        if (text && parts.indexOf(text) === -1) {
+            parts.push(text);
+        }
+    }
+
+    return parts.join(". ");
+}
+
+function buildSectionAnnouncement(target, selectedName) {
+    var content = getReadableContent(target);
+    var guidance = cleanVoiceText(target.getAttribute("data-voice-guidance"));
+    var parts = [];
+
+    if (selectedName) {
+        parts.push("Has seleccionado " + selectedName + ".");
+
+        if (content === selectedName) {
+            content = "";
+        } else if (content.indexOf(selectedName + ". ") === 0) {
+            content = content.substring(selectedName.length + 2);
+        }
+    }
+
+    if (content) {
+        parts.push(content + ".");
+    }
+
+    if (guidance) {
+        parts.push("Indicaciones: " + guidance);
+    }
+
+    return cleanVoiceText(parts.join(" "));
+}
+
+function announceElementContent(target, force, selectedName) {
+    var announcement = buildSectionAnnouncement(target, selectedName);
+
+    if (force) {
+        speakForce(announcement);
+    } else {
+        speak(announcement);
+    }
+}
+
+var speakButtons = document.querySelectorAll(".speak-button[data-speak-target]");
+
+for (var s = 0; s < speakButtons.length; s++) {
+    speakButtons[s].addEventListener("click", function () {
+        var targetId = this.getAttribute("data-speak-target");
+        var target = document.getElementById(targetId);
+
+        if (!target) {
+            return;
+        }
+
+        announceElementContent(target, true, "");
+    });
+}
+
+/* Cada tarjeta de Funciones principales puede seleccionarse con mouse o teclado.
+   Al entrar en ella se anuncia el nombre, la descripción y la acción recomendada. */
+var featureCards = document.querySelectorAll("#funciones .feature-card[role='button']");
+var lastFeatureCard = null;
+var lastFeatureAnnouncementTime = 0;
+
+function announceFeatureCard(card, force) {
+    if (!card) {
+        return;
+    }
+
+    var now = Date.now();
+
+    if (!force && lastFeatureCard === card && now - lastFeatureAnnouncementTime < 800) {
+        return;
+    }
+
+    lastFeatureCard = card;
+    lastFeatureAnnouncementTime = now;
+
+    for (var i = 0; i < featureCards.length; i++) {
+        featureCards[i].classList.remove("voice-selected");
+    }
+
+    card.classList.add("voice-selected");
+
+    var titleElement = card.querySelector("h3");
+    var selectedName = titleElement ? cleanVoiceText(titleElement.textContent) : "esta función";
+    announceElementContent(card, false, selectedName);
+}
+
+for (var f = 0; f < featureCards.length; f++) {
+    featureCards[f].addEventListener("focus", function () {
+        announceFeatureCard(this, false);
+    });
+
+    featureCards[f].addEventListener("click", function () {
+        announceFeatureCard(this, false);
+    });
+
+    featureCards[f].addEventListener("keydown", function (event) {
+        if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            announceFeatureCard(this, true);
+        }
+    });
 }
 
 /* ============ HIGH CONTRAST TOGGLE ============ */
@@ -193,6 +515,28 @@ if (contrastToggle) {
 var buttons = document.getElementsByClassName("demo-btn");
 var screens = document.getElementsByClassName("app-screen");
 
+function getDemoScreenName(screenId) {
+    for (var i = 0; i < buttons.length; i++) {
+        if (buttons[i].getAttribute("data-screen") === screenId) {
+            return cleanVoiceText(buttons[i].textContent);
+        }
+    }
+
+    var screen = document.getElementById(screenId);
+    var heading = screen ? screen.querySelector("h3") : null;
+    return heading ? cleanVoiceText(heading.textContent) : "esta sección";
+}
+
+function announceDemoScreen(screenId) {
+    var target = document.getElementById(screenId);
+
+    if (!target) {
+        return;
+    }
+
+    announceElementContent(target, false, getDemoScreenName(screenId));
+}
+
 function switchToScreen(screenId) {
     for (var j = 0; j < buttons.length; j++) {
         buttons[j].classList.toggle("active", buttons[j].getAttribute("data-screen") === screenId);
@@ -206,6 +550,10 @@ function switchToScreen(screenId) {
 
     if (target) {
         target.scrollIntoView({ behavior: "smooth", block: "nearest" });
+
+        setTimeout(function () {
+            announceDemoScreen(screenId);
+        }, 350);
     }
 }
 
@@ -241,6 +589,20 @@ if (adminNavLink) {
         } else {
             switchToScreen("adminScreen");
         }
+    };
+}
+
+/* ============ LOGIN NAV LINK (arriba en la barra de navegación) ============ */
+/* Lleva directamente a la pantalla de "Iniciar sesión" dentro de la sección
+   de vista previa de la app (#demo), igual que hace "Panel admin". */
+
+var loginNavLink = document.getElementById("loginNavLink");
+
+if (loginNavLink) {
+    loginNavLink.onclick = function (event) {
+        event.preventDefault();
+        document.getElementById("demo").scrollIntoView({ behavior: "smooth" });
+        switchToScreen("loginScreen");
     };
 }
 
@@ -531,12 +893,14 @@ if (loginForm && loginMessage) {
             if (matchedUser.password !== password) {
                 setFormMessage(loginMessage, "Contraseña incorrecta.", true);
                 showToast("Contraseña incorrecta.", "error");
+                speak("Contraseña incorrecta.");
                 return;
             }
 
             saveSession({ name: matchedUser.name, email: matchedUser.email, role: matchedUser.role || "user" });
             setFormMessage(loginMessage, "Inicio de sesión realizado correctamente.", false);
             showToast("Bienvenido/a, " + matchedUser.name + ".");
+            speak("Inicio de sesión realizado correctamente. Bienvenido o bienvenida, " + matchedUser.name + ".");
             loginForm.reset();
 
             if (matchedUser.role === "admin") {
@@ -553,6 +917,7 @@ if (loginForm && loginMessage) {
             if (email.indexOf("admin") !== -1) {
                 setFormMessage(loginMessage, "Correo de administrador no reconocido.", true);
                 showToast("Correo de administrador no reconocido.", "error");
+                speak("Correo de administrador no reconocido.");
                 return;
             }
 
@@ -560,6 +925,7 @@ if (loginForm && loginMessage) {
             saveSession({ name: guestName, email: email, role: "user" });
             setFormMessage(loginMessage, "Sesión iniciada en modo demostración.", false);
             showToast("Modo demostración: sesión iniciada como " + guestName + ".");
+            speak("Sesión iniciada en modo demostración como " + guestName + ".");
             loginForm.reset();
 
             setTimeout(function () {
@@ -577,6 +943,7 @@ if (logoutButton) {
     logoutButton.onclick = function () {
         clearSession();
         showToast("Sesión cerrada.");
+        speak("Sesión cerrada.");
         renderAdminPanel();
         switchToScreen("loginScreen");
     };
@@ -600,12 +967,15 @@ if (registerForm && registerMessage) {
         if (password !== confirmPassword) {
             setFormMessage(registerMessage, "Las contraseñas no coinciden.", true);
             showToast("Las contraseñas no coinciden.", "error");
+            speak("Las contraseñas no coinciden.");
         } else if (!/^9\d{8}$/.test(phone)) {
             setFormMessage(registerMessage, "El teléfono debe empezar en 9 y tener 9 dígitos.", true);
             showToast("El teléfono debe empezar en 9 y tener 9 dígitos.", "error");
+            speak("El teléfono debe empezar en 9 y tener 9 dígitos.");
         } else if (!acceptTerms || acceptTerms.checked === false) {
             setFormMessage(registerMessage, "Debes revisar y aceptar los términos y condiciones para crear tu cuenta.", true);
             showToast("Debes aceptar los términos y condiciones.", "error");
+            speak("Debes aceptar los términos y condiciones para crear tu cuenta.");
         } else {
             var users = getUsers();
             var alreadyExists = users.some(function (u) {
@@ -615,6 +985,7 @@ if (registerForm && registerMessage) {
             if (alreadyExists) {
                 setFormMessage(registerMessage, "Ya existe una cuenta con ese correo.", true);
                 showToast("Ya existe una cuenta con ese correo.", "error");
+                speak("Ya existe una cuenta con ese correo.");
                 return;
             }
 
@@ -623,6 +994,7 @@ if (registerForm && registerMessage) {
 
             setFormMessage(registerMessage, "Cuenta creada correctamente.", false);
             showToast("Cuenta creada. Ya puedes iniciar sesión.");
+            speak("Cuenta creada correctamente. Ahora puedes iniciar sesión.");
 
             registerForm.reset();
 
@@ -658,9 +1030,11 @@ if (accessForm && accessMessage) {
         if (selected === false) {
             setFormMessage(accessMessage, "Selecciona al menos una necesidad de accesibilidad.", true);
             showToast("Selecciona al menos una necesidad de accesibilidad.", "error");
+            speak("Selecciona al menos una necesidad de accesibilidad.");
         } else {
             setFormMessage(accessMessage, "Preferencias de accesibilidad guardadas.", false);
             showToast("Preferencias de accesibilidad guardadas.");
+            speak("Preferencias de accesibilidad guardadas.");
         }
     };
 }
@@ -692,9 +1066,11 @@ if (searchForm && searchMessage && destinationInput) {
         if (destination === "") {
             setFormMessage(searchMessage, "Ingresa un destino para calcular la ruta.", true);
             showToast("Ingresa un destino para calcular la ruta.", "error");
+            speak("Ingresa un destino para calcular la ruta.");
         } else {
             setFormMessage(searchMessage, "Ruta accesible calculada. El mapa muestra el lugar real.", false);
             showToast("Ruta accesible calculada.");
+            speak("Ruta accesible calculada hacia " + destination + ". El mapa muestra el lugar real.");
             updateDestinationMap(destination);
         }
     };
@@ -730,9 +1106,11 @@ if (reportForm && reportMessage) {
         if (selectedTypes.length === 0) {
             setFormMessage(reportMessage, "Selecciona un tipo de obstáculo.", true);
             showToast("Selecciona un tipo de obstáculo.", "error");
+            speak("Selecciona un tipo de obstáculo.");
         } else if (locationValue === "") {
             setFormMessage(reportMessage, "Ingresa la ubicación del obstáculo.", true);
             showToast("Ingresa la ubicación del obstáculo.", "error");
+            speak("Ingresa la ubicación del obstáculo.");
         } else {
             var session = getSession();
             var reports = getReports();
@@ -750,6 +1128,7 @@ if (reportForm && reportMessage) {
 
             setFormMessage(reportMessage, "Reporte enviado correctamente.", false);
             showToast("Gracias por ayudar a la comunidad. Reporte enviado.");
+            speak("Reporte enviado correctamente. Gracias por ayudar a la comunidad.");
 
             reportForm.reset();
 
@@ -768,7 +1147,7 @@ if (reportForm && reportMessage) {
     };
 }
 
-/* ============ VOICE GUIDE ============ */
+/* ============ VOICE GUIDE (preferencias) ============ */
 
 var voiceForm = document.getElementById("voiceForm");
 var voiceMessage = document.getElementById("voiceMessage");
@@ -779,6 +1158,7 @@ if (voiceForm && voiceMessage) {
 
         setFormMessage(voiceMessage, "Configuración de guía por voz guardada.", false);
         showToast("Guía por voz configurada.");
+        speak("Configuración de guía por voz guardada correctamente.");
     };
 }
 
@@ -802,9 +1182,11 @@ if (contactForm && message) {
         if (name === "" || email === "" || profile === "") {
             setFormMessage(message, "Por favor, completa todos los campos.", true);
             showToast("Completa todos los campos.", "error");
+            speak("Por favor, completa todos los campos.");
         } else if (!/^9\d{8}$/.test(contactPhoneValue)) {
             setFormMessage(message, "El teléfono debe empezar en 9 y tener 9 dígitos.", true);
             showToast("El teléfono debe empezar en 9 y tener 9 dígitos.", "error");
+            speak("El teléfono debe empezar en 9 y tener 9 dígitos.");
         } else {
             var contacts = getContacts();
 
@@ -822,6 +1204,7 @@ if (contactForm && message) {
 
             setFormMessage(message, "Gracias por tu interés en AccesiRuta. Pronto recibirás novedades.", false);
             showToast("Gracias por tu interés en AccesiRuta.");
+            speak("Gracias por tu interés en AccesiRuta. Pronto recibirás novedades.");
 
             contactForm.reset();
             renderAdminPanel();

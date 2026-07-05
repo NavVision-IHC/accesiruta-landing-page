@@ -6,25 +6,31 @@
     <title>AccesiRuta | Movilidad accesible</title>
 
     <link rel="icon" href="favicon.ico">
-    <link rel="stylesheet" href="assets/styles/styles.css?v=final5">
+    <link rel="stylesheet" href="assets/styles/styles.css?v=final8">
 </head>
 
 <body>
 
 <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+<div id="voiceLiveRegion" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 
 <header class="site-header">
     <nav class="navbar">
-        <a href="#inicio" class="brand">
-            <img src="assets/images/logo-accesiruta.png" alt="Logo de AccesiRuta" class="brand-logo">
-            <span>AccesiRuta</span>
+        <a href="#inicio" class="brand" aria-label="Ir al inicio de AccesiRuta">
+            <img src="assets/images/logo-accesiruta.png" alt="AccesiRuta" class="brand-logo">
         </a>
 
         <div class="navbar-right">
+            <button id="voiceModeToggle" class="icon-btn" type="button" aria-label="Activar o desactivar la guía por voz" title="Guía por voz">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 6a9 9 0 0 1 0 12"/></svg>
+            </button>
+
             <button id="contrastToggle" class="contrast-toggle" type="button" title="Activar alto contraste">
                 <span class="contrast-icon">◐</span>
                 <span class="contrast-label">Alto contraste</span>
             </button>
+
+            <a href="#demo" id="loginNavLink" class="login-nav-link" data-screen="loginScreen">Iniciar sesión</a>
 
             <button id="menuButton" class="menu-button" type="button">Menú</button>
 
@@ -43,7 +49,7 @@
 
     <section id="inicio" class="hero-section">
         <div class="hero-content">
-            <div class="hero-text">
+            <div class="hero-text" id="speak-inicio">
                 <span class="section-label">Movilidad urbana inclusiva</span>
                 <h1>Rutas accesibles para desplazarte con mayor seguridad y autonomía</h1>
                 <p>
@@ -55,31 +61,30 @@
                     <a href="#demo" class="primary-button">Probar la app</a>
                     <a href="#funciones" class="secondary-button">Conocer funciones</a>
                 </div>
+
+                <button type="button" class="speak-button" data-speak-target="speak-inicio">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg>
+                    Escuchar esta sección
+                </button>
             </div>
 
             <div class="hero-image">
-                <svg class="path-illustration" viewBox="0 0 420 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ilustracion de una ruta accesible dibujandose">
-                    <path id="heroPath" d="M40,360 C90,280 60,220 120,190 C180,160 150,110 220,90 C280,72 300,40 380,30"
-                          fill="none" stroke="#0f7f73" stroke-width="6" stroke-linecap="round" stroke-dasharray="900" stroke-dashoffset="900"/>
-                    <circle class="path-node" cx="40" cy="360" r="9"/>
-                    <circle class="path-node delay-1" cx="120" cy="190" r="9"/>
-                    <circle class="path-node delay-2" cx="220" cy="90" r="9"/>
-                    <circle class="path-node delay-3" cx="380" cy="30" r="11"/>
-                    <text x="18" y="386" class="path-label">Origen</text>
-                    <text x="330" y="20" class="path-label">Destino</text>
-                    <g class="floating-badge badge-ramp" transform="translate(95,230)">
-                        <circle r="16" />
-                        <text y="5">♿</text>
-                    </g>
-                    <g class="floating-badge badge-cross" transform="translate(195,140)">
-                        <circle r="16" />
-                        <text y="5">⚠</text>
-                    </g>
-                    <g class="floating-badge badge-voice" transform="translate(300,55)">
-                        <circle r="16" />
-                        <text y="5">🔊</text>
-                    </g>
-                </svg>
+                <div class="hero-map-shell" id="heroMapShell">
+                    <div
+                            id="heroMap"
+                            class="hero-leaflet-map"
+                            role="application"
+                            tabindex="0"
+                            aria-label="Mapa interactivo de OpenStreetMap con una ruta accesible entre un punto de origen y un punto de destino"
+                    ></div>
+
+                    <img
+                            id="heroMapFallback"
+                            src="assets/images/mapa-ruta.png"
+                            alt="Mapa de OpenStreetMap con una ruta accesible entre un punto de origen y un punto de destino"
+                            class="hero-map-fallback"
+                    >
+                </div>
             </div>
         </div>
     </section>
@@ -111,7 +116,7 @@
     </section>
 
     <section id="problema" class="section problem-section">
-        <div class="section-header reveal">
+        <div class="section-header reveal" id="speak-problema">
             <span class="section-label">Problema</span>
             <h2>La movilidad urbana no siempre es accesible</h2>
             <p>
@@ -119,6 +124,11 @@
                 Las aplicaciones tradicionales de mapas no muestran información específica sobre rampas,
                 veredas, cruces seguros o barreras urbanas.
             </p>
+
+            <button type="button" class="speak-button" data-speak-target="speak-problema">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg>
+                Escuchar esta sección
+            </button>
         </div>
 
         <div class="cards-grid three-columns">
@@ -143,13 +153,18 @@
     </section>
 
     <section id="solucion" class="section solution-section">
-        <div class="section-header reveal">
+        <div class="section-header reveal" id="speak-solucion">
             <span class="section-label">Solución</span>
             <h2>AccesiRuta convierte la movilidad en una experiencia más segura</h2>
             <p>
                 Nuestra solución combina rutas accesibles, reportes colaborativos,
                 alertas en tiempo real y asistencia por voz para mejorar la autonomía del usuario.
             </p>
+
+            <button type="button" class="speak-button" data-speak-target="speak-solucion">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg>
+                Escuchar esta sección
+            </button>
         </div>
 
         <div class="cards-grid three-columns timeline-grid">
@@ -173,44 +188,49 @@
         </div>
     </section>
 
-    <section id="funciones" class="section features-section">
-        <div class="section-header reveal">
+    <section id="funciones" class="section features-section" data-voice-guidance="Selecciona una tarjeta con el mouse o con la tecla Tab. Al seleccionarla, escucharás su explicación y la indicación para utilizarla.">
+        <div class="section-header reveal" id="speak-funciones">
             <span class="section-label">Funciones principales</span>
             <h2>Herramientas diseñadas para una navegación inclusiva</h2>
+
+            <button type="button" class="speak-button" data-speak-target="funciones">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg>
+                Escuchar esta sección
+            </button>
         </div>
 
         <div class="features-grid">
-            <article class="feature-card reveal">
+            <article class="feature-card reveal" tabindex="0" role="button" aria-label="Rutas accesibles. Selecciona para escuchar la explicación y las indicaciones." data-voice-guidance="Para utilizar esta función, ve a Buscar ruta, escribe tu destino y presiona Calcular ruta. También puedes abrir el mapa para confirmar la dirección.">
                 <span class="feature-icon green">✓</span>
                 <h3>Rutas accesibles</h3>
                 <p>Rutas que priorizan rampas, veredas amplias, cruces seguros y menor cantidad de obstáculos.</p>
             </article>
 
-            <article class="feature-card reveal">
+            <article class="feature-card reveal" tabindex="0" role="button" aria-label="Alertas. Selecciona para escuchar la explicación y las indicaciones." data-voice-guidance="Durante el recorrido, mantén activada la guía por voz para escuchar los avisos sobre obstáculos, zonas de riesgo o cambios en la ruta.">
                 <span class="feature-icon orange">!</span>
                 <h3>Alertas</h3>
                 <p>Alertas sobre obstáculos, zonas de riesgo o avisos durante el trayecto.</p>
             </article>
 
-            <article class="feature-card reveal">
+            <article class="feature-card reveal" tabindex="0" role="button" aria-label="Guía por voz. Selecciona para escuchar la explicación y las indicaciones." data-voice-guidance="Para activarla o desactivarla, utiliza el botón con el ícono de altavoz ubicado en la barra superior. En la vista previa también puedes seleccionar Guía por voz y probar una indicación.">
                 <span class="feature-icon blue">🔊</span>
                 <h3>Guía por voz</h3>
                 <p>Indicaciones auditivas para usuarios con discapacidad visual.</p>
             </article>
 
-            <article class="feature-card reveal">
+            <article class="feature-card reveal" tabindex="0" role="button" aria-label="Reportes colaborativos. Selecciona para escuchar la explicación y las indicaciones." data-voice-guidance="Para realizar un reporte, selecciona Reportar en la vista previa, elige el tipo de obstáculo, escribe su ubicación y presiona Enviar reporte.">
                 <span class="feature-icon teal">+</span>
                 <h3>Reportes colaborativos</h3>
                 <p>La comunidad informa barreras urbanas y ayuda a mantener rutas actualizadas.</p>
             </article>
 
-            <article class="feature-card reveal">
+            <article class="feature-card reveal" tabindex="0" role="button" aria-label="Diseño accesible. Selecciona para escuchar la explicación y las indicaciones." data-voice-guidance="Puedes activar el alto contraste desde la barra superior. También puedes recorrer los controles con la tecla Tab y seleccionarlos con Enter o la barra espaciadora.">
                 <span class="feature-icon purple">Aa</span>
                 <h3>Diseño accesible</h3>
                 <p>Alto contraste, botones visibles, textos claros y navegación sencilla. Pruébalo arriba, en el botón "Alto contraste".</p>
             </article>
 
-            <article class="feature-card reveal">
+            <article class="feature-card reveal" tabindex="0" role="button" aria-label="Apoyo en emergencias. Selecciona para escuchar la explicación y las indicaciones." data-voice-guidance="Esta función está diseñada para facilitar el acceso a contactos o acciones rápidas ante una situación de riesgo. Revisa las opciones disponibles antes de iniciar tu recorrido.">
                 <span class="feature-icon red">SOS</span>
                 <h3>Apoyo en emergencias</h3>
                 <p>Acceso a contactos o acciones rápidas para situaciones de riesgo.</p>
@@ -240,12 +260,19 @@
 
         <div class="app-preview-container">
 
-            <div id="loginScreen" class="app-screen active">
-                <h3>Iniciar sesión</h3>
+            <div id="loginScreen" class="app-screen active" data-voice-guidance="Ingresa tu correo electrónico y tu contraseña. Después, presiona Iniciar sesión.">
+                <div class="screen-head-row" id="speak-loginScreen">
+                    <h3>Iniciar sesión</h3>
+                </div>
+
+                <button type="button" class="speak-button" data-speak-target="loginScreen">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg>
+                    Escuchar este paso
+                </button>
 
                 <div class="phone-card">
                     <div class="phone-logo">
-                        <img src="assets/images/logo-accesiruta.png" alt="Logo de AccesiRuta">
+                        <img src="assets/images/logo-accesiruta.png" alt="AccesiRuta">
                     </div>
 
                     <h4>Bienvenido a AccesiRuta</h4>
@@ -265,12 +292,19 @@
                 </div>
             </div>
 
-            <div id="registerScreen" class="app-screen">
-                <h3>Registrarse</h3>
+            <div id="registerScreen" class="app-screen" data-voice-guidance="Completa tu nombre, correo, teléfono y contraseña. Revisa los términos y condiciones, acéptalos y presiona Crear cuenta.">
+                <div class="screen-head-row" id="speak-registerScreen">
+                    <h3>Registrarse</h3>
+                </div>
+
+                <button type="button" class="speak-button" data-speak-target="registerScreen">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg>
+                    Escuchar este paso
+                </button>
 
                 <div class="phone-card">
                     <div class="phone-logo">
-                        <img src="assets/images/logo-accesiruta.png" alt="Logo de AccesiRuta">
+                        <img src="assets/images/logo-accesiruta.png" alt="AccesiRuta">
                     </div>
 
                     <h4>Crea tu cuenta</h4>
@@ -310,8 +344,15 @@
                 </div>
             </div>
 
-            <div id="accessScreen" class="app-screen">
-                <h3>Configuración de accesibilidad</h3>
+            <div id="accessScreen" class="app-screen" data-voice-guidance="Selecciona tus necesidades principales y las prioridades de la ruta. Después, presiona Guardar preferencias.">
+                <div class="screen-head-row" id="speak-accessScreen">
+                    <h3>Configuración de accesibilidad</h3>
+                </div>
+
+                <button type="button" class="speak-button" data-speak-target="accessScreen">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg>
+                    Escuchar este paso
+                </button>
 
                 <div class="phone-card wide-card">
                     <h4>Personaliza tu experiencia</h4>
@@ -373,8 +414,15 @@
                 </div>
             </div>
 
-            <div id="searchScreen" class="app-screen">
-                <h3>Buscar ruta accesible</h3>
+            <div id="searchScreen" class="app-screen" data-voice-guidance="Escribe el destino. Puedes abrir el mapa para confirmar la dirección o presionar Calcular ruta para visualizar el recorrido.">
+                <div class="screen-head-row" id="speak-searchScreen">
+                    <h3>Buscar ruta accesible</h3>
+                </div>
+
+                <button type="button" class="speak-button" data-speak-target="searchScreen">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg>
+                    Escuchar este paso
+                </button>
 
                 <div class="phone-card wide-card search-route-card">
                     <div class="search-route-layout">
@@ -415,8 +463,15 @@
                 </div>
             </div>
 
-            <div id="reportScreen" class="app-screen">
-                <h3>Reportar obstáculo</h3>
+            <div id="reportScreen" class="app-screen" data-voice-guidance="Selecciona uno o más tipos de obstáculo, escribe la ubicación y presiona Enviar reporte. Si eliges Otro, describe el obstáculo.">
+                <div class="screen-head-row" id="speak-reportScreen">
+                    <h3>Reportar obstáculo</h3>
+                </div>
+
+                <button type="button" class="speak-button" data-speak-target="reportScreen">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg>
+                    Escuchar este paso
+                </button>
 
                 <div class="phone-card wide-card">
                     <h4>Ayuda a otros usuarios</h4>
@@ -467,12 +522,24 @@
                 </div>
             </div>
 
-            <div id="voiceScreen" class="app-screen">
-                <h3>Guía por voz</h3>
+            <div id="voiceScreen" class="app-screen" data-voice-guidance="Selecciona las opciones auditivas que necesites. Puedes presionar Probar guía por voz y, al finalizar, Guardar guía por voz.">
+                <div class="screen-head-row" id="speak-voiceScreen">
+                    <h3>Guía por voz</h3>
+                </div>
+
+                <button type="button" class="speak-button" data-speak-target="voiceScreen">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg>
+                    Escuchar este paso
+                </button>
 
                 <div class="phone-card">
                     <h4>Asistencia auditiva</h4>
                     <p>Configura indicaciones por voz para recibir apoyo durante tu desplazamiento.</p>
+
+                    <button type="button" id="testVoiceButton" class="speak-button" style="margin-bottom: 16px;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 6a9 9 0 0 1 0 12"/></svg>
+                        Probar guía por voz
+                    </button>
 
                     <form id="voiceForm" class="demo-form">
                         <label class="access-need simple-option">
@@ -497,7 +564,7 @@
                 </div>
             </div>
 
-            <div id="adminScreen" class="app-screen">
+            <div id="adminScreen" class="app-screen" data-voice-guidance="Esta sección es de acceso restringido. Inicia sesión como administrador para revisar y actualizar los reportes de la comunidad.">
                 <h3>Panel de administrador</h3>
 
                 <div class="phone-card wide-card admin-card">
@@ -564,9 +631,14 @@
     </section>
 
     <section id="usuarios" class="section users-section">
-        <div class="section-header reveal">
+        <div class="section-header reveal" id="speak-usuarios">
             <span class="section-label">Usuarios objetivo</span>
             <h2>Diseñado para diferentes necesidades de movilidad</h2>
+
+            <button type="button" class="speak-button" data-speak-target="speak-usuarios">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg>
+                Escuchar esta sección
+            </button>
         </div>
 
         <div class="cards-grid two-columns">
@@ -611,9 +683,14 @@
     </section>
 
     <section id="proceso" class="section process-section">
-        <div class="section-header reveal">
+        <div class="section-header reveal" id="speak-proceso">
             <span class="section-label">Proceso de uso</span>
             <h2>¿Cómo funciona AccesiRuta?</h2>
+
+            <button type="button" class="speak-button" data-speak-target="speak-proceso">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg>
+                Escuchar esta sección
+            </button>
         </div>
 
         <div class="cards-grid three-columns">
@@ -638,13 +715,18 @@
     </section>
 
     <section id="contacto" class="section contact-section">
-        <div class="section-header reveal">
+        <div class="section-header reveal" id="speak-contacto">
             <span class="section-label">Contacto</span>
             <h2>Forma parte de una movilidad más accesible</h2>
             <p>
                 Déjanos tus datos para recibir novedades sobre AccesiRuta y participar
                 en futuras pruebas de usuario.
             </p>
+
+            <button type="button" class="speak-button" data-speak-target="speak-contacto">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg>
+                Escuchar esta sección
+            </button>
         </div>
 
         <form id="contactForm" class="contact-form reveal">
@@ -769,7 +851,7 @@
     </div>
 </footer>
 
-<script src="assets/scripts/main.js"></script>
+<script src="assets/scripts/main.js?v=final6"></script>
 
 </body>
 </html>

@@ -40,6 +40,19 @@ body {
 a {
     text-decoration: none;
 }
+/* Elemento disponible para lectores de pantalla, sin ocupar espacio visual. */
+.sr-only {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
 
 @media (prefers-reduced-motion: reduce) {
     * {
@@ -79,6 +92,7 @@ body.high-contrast .site-header {
 body.high-contrast .brand,
 body.high-contrast .nav-menu a,
 body.high-contrast .contrast-toggle,
+body.high-contrast .icon-btn,
 body.high-contrast .site-footer,
 body.high-contrast .site-footer h3,
 body.high-contrast .site-footer p {
@@ -91,6 +105,20 @@ body.high-contrast .contrast-toggle {
 
 body.high-contrast .contrast-toggle.active {
     color: #000000;
+}
+
+body.high-contrast .icon-btn {
+    border: 1px solid #ffcc00;
+}
+
+body.high-contrast .icon-btn.voice-off {
+    color: rgba(255, 255, 255, 0.55);
+}
+
+body.high-contrast .login-nav-link {
+    background: #ffcc00;
+    color: #000000;
+    font-weight: 900;
 }
 
 body.high-contrast .admin-nav-link {
@@ -132,10 +160,16 @@ body.high-contrast .map-action-button {
 
 body.high-contrast .secondary-button,
 body.high-contrast .secondary-action-button,
-body.high-contrast .location-permission-button {
+body.high-contrast .location-permission-button,
+body.high-contrast .speak-button {
     background: #000000;
     color: #ffcc00;
     border-color: #ffcc00;
+}
+
+body.high-contrast .speak-button.speaking {
+    background: #ffcc00;
+    color: #000000;
 }
 
 body.high-contrast .demo-form input,
@@ -276,6 +310,55 @@ body.high-contrast .toast.toast-error {
     display: flex;
     align-items: center;
     gap: 14px;
+}
+
+.icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.14);
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    color: var(--white);
+    cursor: pointer;
+    padding: 0;
+    transition: transform var(--transition-fast), background var(--transition-fast);
+}
+
+.icon-btn svg {
+    width: 17px;
+    height: 17px;
+}
+
+.icon-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+}
+
+.icon-btn.voice-off {
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.55);
+}
+
+.login-nav-link {
+    display: inline-flex;
+    align-items: center;
+    background: var(--white);
+    color: var(--primary);
+    padding: 9px 16px;
+    border-radius: 999px;
+    font-weight: 800;
+    font-size: 13px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: transform var(--transition-fast), background var(--transition-fast);
+}
+
+.login-nav-link:hover {
+    background: #f1fffd;
+    transform: translateY(-1px);
 }
 
 .contrast-toggle {
@@ -467,6 +550,44 @@ body.high-contrast .toast.toast-error {
     animation: fadeUp 0.8s ease 0.3s both;
 }
 
+/* ============ SPEAK / VOICE GUIDE BUTTONS ============ */
+
+.speak-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: transparent;
+    border: 2px solid var(--primary);
+    color: var(--primary);
+    border-radius: 999px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    margin-top: 16px;
+    transition: transform var(--transition-fast), background var(--transition-fast), color var(--transition-fast);
+}
+
+.speak-button svg {
+    width: 15px;
+    height: 15px;
+}
+
+.speak-button:hover {
+    background: var(--primary-light);
+    transform: translateY(-1px);
+}
+
+.speak-button.speaking {
+    background: var(--primary);
+    color: var(--white);
+}
+
+.section-header .speak-button {
+    margin-left: auto;
+    margin-right: auto;
+}
+
 .primary-button,
 .secondary-button {
     display: inline-block;
@@ -504,6 +625,94 @@ body.high-contrast .toast.toast-error {
 .hero-image {
     display: flex;
     justify-content: center;
+    width: 100%;
+}
+
+.hero-map-shell {
+    position: relative;
+    width: min(520px, 100%);
+    height: 332px;
+    border-radius: 18px;
+    border: 2px solid var(--card-border);
+    box-shadow: 0 20px 42px rgba(6, 52, 62, 0.18);
+    overflow: hidden;
+    background: #e8f3f1;
+    animation: fadeUp 0.8s ease 0.2s both;
+}
+
+.hero-leaflet-map,
+.hero-map-fallback {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.hero-leaflet-map {
+    z-index: 1;
+    background: #e8f3f1;
+}
+
+.hero-map-fallback {
+    z-index: 2;
+    display: block;
+    object-fit: cover;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+.hero-map-shell.map-ready .hero-map-fallback {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.hero-leaflet-map:focus-visible {
+    outline: 4px solid var(--accent);
+    outline-offset: -4px;
+}
+
+.hero-leaflet-map .leaflet-control-zoom a {
+    color: #111111;
+}
+
+.hero-leaflet-map .leaflet-control-attribution {
+    font-size: 10px;
+}
+
+.accesiruta-map-pin {
+    background: transparent;
+    border: 0;
+}
+
+.accesiruta-map-pin .map-pin-shape {
+    position: relative;
+    display: block;
+    width: 28px;
+    height: 28px;
+    background: #2f8fca;
+    border: 3px solid #ffffff;
+    border-radius: 50% 50% 50% 0;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.28);
+    transform: rotate(-45deg);
+}
+
+.accesiruta-map-pin .map-pin-center {
+    position: absolute;
+    top: 7px;
+    left: 7px;
+    width: 8px;
+    height: 8px;
+    background: #ffffff;
+    border-radius: 50%;
+}
+
+body.high-contrast .hero-map-shell {
+    border: 3px solid #ffcc00;
+    box-shadow: none;
+}
+
+body.high-contrast .hero-leaflet-map {
+    filter: contrast(1.2) saturate(0.75);
 }
 
 .path-illustration {
@@ -677,6 +886,27 @@ body.high-contrast .toast.toast-error {
     border-color: var(--primary);
 }
 
+/* Tarjetas seleccionables de Funciones principales. */
+.feature-card[role="button"] {
+    cursor: pointer;
+}
+
+.feature-card[role="button"]:focus-visible {
+    outline: 4px solid var(--accent);
+    outline-offset: 4px;
+    transform: translateY(-6px);
+    box-shadow: 0 18px 34px rgba(6, 52, 62, 0.16);
+}
+
+.feature-card.voice-selected {
+    border-color: var(--primary);
+    box-shadow: 0 18px 34px rgba(6, 52, 62, 0.16);
+}
+
+body.high-contrast .feature-card[role="button"]:focus-visible {
+    outline-color: #ffcc00;
+}
+
 .timeline-grid .info-card {
     position: relative;
     padding-top: 30px;
@@ -821,6 +1051,14 @@ body.high-contrast .toast.toast-error {
 .app-screen h3 {
     margin-bottom: 18px;
     text-align: left;
+}
+
+.screen-head-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
 }
 
 .phone-card {
@@ -1629,6 +1867,11 @@ body.high-contrast .toast.toast-error {
         display: none;
     }
 
+    .login-nav-link {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+
     .menu-button {
         display: block;
     }
@@ -1651,6 +1894,10 @@ body.high-contrast .toast.toast-error {
 
     .hero-section {
         padding: 52px 0;
+    }
+
+    .hero-map-shell {
+        height: 280px;
     }
 
     .section {
